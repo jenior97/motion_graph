@@ -22,18 +22,15 @@
   </style>
 </head>
 <body>
-  <!-- motion_graph 엔드포인트에서 SVG를 가져옵니다. -->
-  <img id="motionGraph" src="//172.30.1.59:5000/motion_graph" alt="Motion Graph">
+  <img id="motionGraph" src="" alt="Motion Graph">
   <script>
-    function refreshSVG() {
-      console.log("refreshSVG() 실행됨:", Date.now()); // 실행 여부 확인용 로그
-      const img = document.getElementById('motionGraph');
-      // 캐시를 피하기 위해 타임스탬프 쿼리파라미터 추가
-      const urlObj = new URL(img.src);
-      urlObj.searchParams.set('ts', Date.now());
-      img.src = urlObj.toString();
-    }
-    setInterval(refreshSVG, 1000);
+    // 새로운 SSE를 통해 motion_graph URL 업데이트를 수신
+    var source = new EventSource('/motion_graph_stream');
+    source.onmessage = function(event) {
+      if(event.data) {
+          document.getElementById("motionGraph").src = event.data;
+      }
+    };
   </script>
 </body>
 </html>
