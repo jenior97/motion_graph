@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Motion Graph Auto Update</title>
+  <title>Motion Graph Visualization</title>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { margin: 0; padding: 0; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    #motionGraphContainer { width: 90%; border: 1px solid #ccc; background: #fff; }
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    #motionGraph {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
-  <div id="motionGraphContainer">Loading motion graph...</div>
+  <!-- motion_graph 엔드포인트에서 SVG를 가져옵니다. -->
+  <img id="motionGraph" src="http://172.30.1.59:5000/motion_graph" alt="Motion Graph">
   <script>
-    // SSE로 motion graph 업데이트를 수신
-    const source = new EventSource("http://172.30.1.59:5000/motion_graph_stream");
-    source.onmessage = function(event) {
-      // 이벤트 메시지(업데이트 타임스탬프)를 받으면 해당 값(ts)을 이용해서 새 SVG 요청 (캐시 우회)
-      const ts = event.data;
-      fetch("http://172.30.1.59:5000/motion_graph?ts=" + ts)
-        .then(response => response.text())
-        .then(svg => {
-          document.getElementById("motionGraphContainer").innerHTML = svg;
-        })
-        .catch(err => console.error("Error fetching motion graph:", err));
-    };
-    source.onerror = function(err) {
-      console.error("SSE Error:", err);
-    };
+    function refreshSVG() {
+      const img = document.getElementById('motionGraph');
+      // 캐시를 피하기 위해 타임스탬프 쿼리파라미터 추가
+      const urlObj = new URL(img.src);
+      urlObj.searchParams.set('ts', Date.now());
+      img.src = urlObj.toString();
+    }
+    // 1초마다 새로고침 (필요시 간격 조정 가능)
+    setInterval(refreshSVG, 1000);
   </script>
 </body>
 </html>
