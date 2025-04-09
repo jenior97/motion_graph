@@ -24,7 +24,7 @@
 <body>
   <img id="motionGraph" src="" alt="Motion Graph">
   <script>
-    // 새로운 SSE를 통해 motion_graph URL 업데이트를 수신
+    // SSE를 통해 모션 그래프 업데이트 이벤트를 수신합니다.
     var source = new EventSource('/motion_graph_stream');
     source.onmessage = function(event) {
       if(event.data) {
